@@ -4,6 +4,9 @@ import json
 
 from flask_cors import CORS, cross_origin
 
+import MeCab
+
+
 app = Flask(__name__)
 CORS(app, support_credentials=True)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -45,6 +48,20 @@ def delete_word():
     print(word, '\n', uuid, '\n\n')
 
     return '', 204
+
+
+@app.route('/get-morphological/<string:text>')
+def morphological_analysis(text):
+    res = ""
+    m = MeCab.Tagger('')
+    node = m.parseToNode(text)
+    while node:
+        print(node.surface, node.feature.split(',')[0], '\n')
+        res += node.surface + "  " + node.feature.split(',')[0] + "____"
+        node = node.next
+
+    return jsonify({"res":res})
+
 
 
 if __name__ == '__main__':
