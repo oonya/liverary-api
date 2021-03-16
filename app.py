@@ -62,7 +62,7 @@ def morphological_analysis(text):
     while node:
         # print(node.surface, node.feature.split(',')[0], '\n')
         print(node.surface, node.feature, '\n')
-        
+
         res += node.surface + "  " + node.feature.split(',')[0] + "____"
         node = node.next
 
@@ -85,7 +85,7 @@ def save_vocabulary():
     while node:
         part = node.feature.split(',')[0]
         if part != 'BOS/EOS' and part != '記号' and part != '助詞' and part != '助動詞':
-            word = node.feature.split(',')[6]
+            word = node.feature.split(',')[7]
 
             if unique_vocabulary(uuid, word):
                 w = Words(uuid=uuid, vocabulary=word, date=date)
