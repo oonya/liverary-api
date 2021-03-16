@@ -60,7 +60,9 @@ def morphological_analysis(text):
     m = MeCab.Tagger('')
     node = m.parseToNode(text)
     while node:
-        print(node.surface, node.feature.split(',')[0], '\n')
+        # print(node.surface, node.feature.split(',')[0], '\n')
+        print(node.surface, node.feature, '\n')
+        
         res += node.surface + "  " + node.feature.split(',')[0] + "____"
         node = node.next
 
