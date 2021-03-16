@@ -85,7 +85,7 @@ def save_vocabulary():
     while node:
         part = node.feature.split(',')[0]
         if part != 'BOS/EOS' and part != '記号' and part != '助詞' and part != '助動詞':
-            word = node.feature.split(',')[7]
+            word = kata_to_hira(node.feature.split(',')[6])
 
             if unique_vocabulary(uuid, word):
                 w = Words(uuid=uuid, vocabulary=word, date=date)
@@ -102,6 +102,8 @@ def unique_vocabulary(uuid, word):
     a = db_session.query(Words).filter(Words.uuid==uuid, Words.vocabulary==word).first()
     return a == None
 
+def kata_to_hira(strj):
+    return "".join([chr(ord(ch) - 96) if ("ァ" <= ch <= "ヴ") else ch for ch in strj])
 
 @app.route('/debug/show-db')
 def show_db():
