@@ -43,7 +43,22 @@ def get_word_num_list():
     with open('responses/word_num_list.json', mode='r', buffering=-1, encoding='utf-8') as f:
         res = json.loads(f.read())
 
+    a = db_session.query(Words).filter(Words.uuid=="userIdentifer").all()
+    for m in a:
+        res["word_num_list"] = inc_res(res["word_num_list"], m)
+        
+
     return jsonify(res)
+
+
+def inc_res(dic_array, word):
+    for d in dic_array:
+        if d["month"] == word.date:
+            d["sum"] += 1
+            return dic_array
+    
+    dic_array.append({"month":word.date, "sum":1})
+    return dic_array
 
 
 @app.route('/delete', methods=['POST'])
@@ -88,7 +103,7 @@ def save_vocabulary():
     
     while node:
         part = node.feature.split(',')[0]
-        if part != 'BOS/EOS' and part != '記号' and part != '助詞' and part != '助動詞':
+        if part != 'BOS/EOS' and part != '記号' and part != '助詞' and part != '助動詞' and part != '補助記号':
             word = kata_to_hira(node.feature.split(',')[6])
 
             if unique_vocabulary(uuid, word):
