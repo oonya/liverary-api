@@ -68,7 +68,12 @@ def delete_word():
     word = form_data['word']
     uuid = "userIdentifer"
 
-    print(word, '\n', uuid, '\n\n')
+    a = db_session.query(Words).filter(Words.uuid==uuid, Words.vocabulary==word).first()
+    if a == None:
+        raise Exception
+
+    db_session.delete(a)
+    db_session.commit()
 
     return '', 204
 
