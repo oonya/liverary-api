@@ -25,9 +25,13 @@ def deltee_config():
 
 @app.route('/words')
 def show_words():
-    uuid = "uuid"
+    uuid = "userIdentifer"
     with open('responses/words.json', mode='r', buffering=-1, encoding='utf-8') as f:
         res = json.loads(f.read())
+    
+    words = db_session.query(Words).filter(Words.uuid==uuid).all()
+    for w in words:
+        res["words"].append({"text":w.vocabulary, "date":w.date})
 
     return jsonify(res)
 
@@ -35,7 +39,7 @@ def show_words():
 
 @app.route('/word_num_list')
 def get_word_num_list():
-    uuid = "uuid"
+    uuid = "userIdentifer"
     with open('responses/word_num_list.json', mode='r', buffering=-1, encoding='utf-8') as f:
         res = json.loads(f.read())
 
@@ -47,7 +51,7 @@ def delete_word():
     f = request.get_data()
     form_data = json.loads(f.decode('utf-8'))
     word = form_data['word']
-    uuid = "uuid"
+    uuid = "userIdentifer"
 
     print(word, '\n', uuid, '\n\n')
 
