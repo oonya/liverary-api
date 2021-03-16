@@ -1,7 +1,3 @@
 {
-	"word_num_list": [
-	  { "month": "2021-01", "sum": 12 },
-	  { "month": "2021-02", "sum": 43 },
-	  { "month": "2021-03", "sum": 56 }
-	]
+	"word_num_list": []
 }
