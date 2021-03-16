@@ -98,5 +98,19 @@ def unique_vocabulary(uuid, word):
     a = db_session.query(Words).filter(Words.uuid==uuid, Words.vocabulary==word).first()
     return a == None
 
+
+@app.route('/debug/show-db')
+def show_db():
+    uuid = "userIdentifer"
+    res = {"res" : []}
+    
+    a = db_session.query(Words).filter(Words.uuid==uuid).all()
+    for m in a:
+        res["res"].append({"uuid":m.uuid, "voca":m.vocabulary, "date":m.date})
+        print("uuid:{}\nvoca:{}\ndate:{}\n".format(m.uuid, m.vocabulary, m.date))
+    
+    return jsonify(res)
+
+
 if __name__ == '__main__':
     app.run()
