@@ -53,11 +53,11 @@ def get_word_num_list():
 
 def inc_res(dic_array, word):
     for d in dic_array:
-        if d["month"] == word.date:
+        if d["month"] == word.date[:7]:
             d["sum"] += 1
             return dic_array
     
-    dic_array.append({"month":word.date, "sum":1})
+    dic_array.append({"month":word.date[:7], "sum":1})
     return dic_array
 
 
