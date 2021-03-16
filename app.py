@@ -6,6 +6,10 @@ from flask_cors import CORS, cross_origin
 
 import MeCab
 
+from models.models import Words
+from models.database import db_session
+import datetime
+
 
 app = Flask(__name__)
 CORS(app, support_credentials=True)
@@ -63,6 +67,36 @@ def morphological_analysis(text):
     return jsonify({"res":res})
 
 
+@app.route('/save-vocabulary', methods=['POST'])
+def save_vocabulary():
+    f = request.get_data()
+    form_data = json.loads(f.decode('utf-8'))
+    text = form_data['text']
+    uuid = "userIdentifer"
+
+    m = MeCab.Tagger('')
+    node = m.parseToNode(text)
+
+    now = datetime.datetime.now()
+    date = now.strftime('%Y-%m-%d')
+    
+    while node:
+        part = node.feature.split(',')[0]
+        if part != 'BOS/EOS' and part != '記号' and part != '助詞' and part != '助動詞':
+            word = node.feature.split(',')[6]
+
+            if unique_vocabulary(uuid, word):
+                w = Words(uuid=uuid, vocabulary=word, date=date)
+                db_session.add(w)
+                db_session.commit()
+
+
+    return 'succeed', 204
+
+
+def unique_vocabulary(uuid, word):
+    a = db_session.query(Words).filter(Words.uuid==uuid, Words.vocabulary==word).first()
+    return a == None
 
 if __name__ == '__main__':
     app.run()
