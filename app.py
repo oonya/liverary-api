@@ -90,6 +90,8 @@ def save_vocabulary():
                 db_session.add(w)
                 db_session.commit()
 
+        node = node.next
+
 
     return 'succeed', 204
 
