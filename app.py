@@ -142,5 +142,19 @@ def show_db():
     return jsonify(res)
 
 
+import google.auth.transport.requests
+import google.oauth2.id_token
+@app.route('/debug/auth')
+def debug_auth():
+    HTTP_REQUEST = google.auth.transport.requests.Request()
+    id_token = request.headers['Authorization'].split(' ').pop()
+    claims = google.oauth2.id_token.verify_firebase_token(
+        id_token, HTTP_REQUEST)
+    if not claims:
+        return 'Unauthorized', 401
+    
+    return "Auth Succeed"
+
+
 if __name__ == '__main__':
     app.run()
