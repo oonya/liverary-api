@@ -25,7 +25,12 @@ def deltee_config():
 
 @app.route('/words')
 def show_words():
-    uuid = "userIdentifer"
+    h = request.headers['Authorization']
+    uuid = get_user_id(h)
+
+    if uuid == None:
+        return 'Unauthorized', 401
+
     with open('responses/words.json', mode='r', buffering=-1, encoding='utf-8') as f:
         res = json.loads(f.read())
     
@@ -43,11 +48,16 @@ def show_words():
 
 @app.route('/word_num_list')
 def get_word_num_list():
-    uuid = "userIdentifer"
+    h = request.headers['Authorization']
+    uuid = get_user_id(h)
+    
+    if uuid == None:
+        return 'Unauthorized', 401
+
     with open('responses/word_num_list.json', mode='r', buffering=-1, encoding='utf-8') as f:
         res = json.loads(f.read())
 
-    a = db_session.query(Words).filter(Words.uuid=="userIdentifer").all()
+    a = db_session.query(Words).filter(Words.uuid==uuid).all()
     for m in a:
         res["word_num_list"] = inc_res(res["word_num_list"], m)
         
@@ -67,10 +77,15 @@ def inc_res(dic_array, word):
 
 @app.route('/delete', methods=['POST'])
 def delete_word():
+    h = request.headers['Authorization']
+    uuid = get_user_id(h)
+    
+    if uuid == None:
+        return 'Unauthorized', 401
+
     f = request.get_data()
     form_data = json.loads(f.decode('utf-8'))
     word = form_data['word']
-    uuid = "userIdentifer"
 
     a = db_session.query(Words).filter(Words.uuid==uuid, Words.vocabulary==word).first()
     if a == None:
@@ -99,10 +114,15 @@ def morphological_analysis(text):
 
 @app.route('/save-vocabulary', methods=['POST'])
 def save_vocabulary():
+    h = request.headers['Authorization']
+    uuid = get_user_id(h)
+    
+    if uuid == None:
+        return 'Unauthorized', 401
+
     f = request.get_data()
     form_data = json.loads(f.decode('utf-8'))
     text = form_data['text']
-    uuid = "userIdentifer"
 
     m = MeCab.Tagger('')
     node = m.parseToNode(text)
@@ -135,7 +155,12 @@ def kata_to_hira(strj):
 
 @app.route('/debug/show-db')
 def show_db():
-    uuid = "userIdentifer"
+    h = request.headers['Authorization']
+    uuid = get_user_id(h)
+    
+    if uuid == None:
+        return 'Unauthorized', 401
+
     res = {"res" : []}
     
     a = db_session.query(Words).filter(Words.uuid==uuid).all()
@@ -150,14 +175,30 @@ import google.auth.transport.requests
 import google.oauth2.id_token
 @app.route('/debug/auth')
 def debug_auth():
+    # HTTP_REQUEST = google.auth.transport.requests.Request()
+    # id_token = request.headers['Authorization'].split(' ').pop()
+    # claims = google.oauth2.id_token.verify_firebase_token(
+    #     id_token, HTTP_REQUEST)
+    # if not claims:
+    #     return 'Unauthorized', 401
+    
+    # print(claims['user_id'])
+    
+    # return "Auth Succeed"
+    h = request.headers['Authorization']
+    print(get_user_id(h))
+    return 's'
+
+
+def get_user_id(header):
     HTTP_REQUEST = google.auth.transport.requests.Request()
-    id_token = request.headers['Authorization'].split(' ').pop()
+    id_token = header.split(' ').pop()
     claims = google.oauth2.id_token.verify_firebase_token(
         id_token, HTTP_REQUEST)
     if not claims:
-        return 'Unauthorized', 401
+        return None
     
-    return "Auth Succeed"
+    return claims['user_id']
 
 
 if __name__ == '__main__':
