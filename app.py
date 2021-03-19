@@ -30,8 +30,12 @@ def show_words():
         res = json.loads(f.read())
     
     words = db_session.query(Words).filter(Words.uuid==uuid).all()
+
+    dic_ary = []
     for w in words:
-        res["words"].append({"text":w.vocabulary, "date":w.date})
+        dic_ary.append({"text":w.vocabulary, "date":w.date})
+
+    res["words"] = sorted(dic_ary, key=lambda x:x['date'])
 
     return jsonify(res)
 
