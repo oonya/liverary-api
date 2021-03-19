@@ -11,6 +11,10 @@ from models.database import db_session
 import datetime
 
 
+import google.auth.transport.requests
+import google.oauth2.id_token
+
+
 app = Flask(__name__)
 CORS(app, support_credentials=True)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -25,7 +29,11 @@ def deltee_config():
 
 @app.route('/words')
 def show_words():
-    h = request.headers['Authorization']
+    try:
+        h = request.headers['Authorization']
+    except Exception:
+        return 'Unauthorized?', 401
+        
     uuid = get_user_id(h)
 
     if uuid == None:
@@ -48,7 +56,11 @@ def show_words():
 
 @app.route('/word_num_list')
 def get_word_num_list():
-    h = request.headers['Authorization']
+    try:
+        h = request.headers['Authorization']
+    except Exception:
+        return 'Unauthorized?', 401
+
     uuid = get_user_id(h)
     
     if uuid == None:
@@ -77,7 +89,11 @@ def inc_res(dic_array, word):
 
 @app.route('/delete', methods=['POST'])
 def delete_word():
-    h = request.headers['Authorization']
+    try:
+        h = request.headers['Authorization']
+    except Exception:
+        return 'Unauthorized?', 401
+
     uuid = get_user_id(h)
     
     if uuid == None:
@@ -114,7 +130,11 @@ def morphological_analysis(text):
 
 @app.route('/save-vocabulary', methods=['POST'])
 def save_vocabulary():
-    h = request.headers['Authorization']
+    try:
+        h = request.headers['Authorization']
+    except Exception:
+        return 'Unauthorized?', 401
+
     uuid = get_user_id(h)
     
     if uuid == None:
@@ -155,7 +175,11 @@ def kata_to_hira(strj):
 
 @app.route('/debug/show-db')
 def show_db():
-    h = request.headers['Authorization']
+    try:
+        h = request.headers['Authorization']
+    except Exception:
+        return 'Unauthorized?', 401
+
     uuid = get_user_id(h)
     
     if uuid == None:
@@ -169,25 +193,6 @@ def show_db():
         print("uuid:{}\nvoca:{}\ndate:{}\n".format(m.uuid, m.vocabulary, m.date))
     
     return jsonify(res)
-
-
-import google.auth.transport.requests
-import google.oauth2.id_token
-@app.route('/debug/auth')
-def debug_auth():
-    # HTTP_REQUEST = google.auth.transport.requests.Request()
-    # id_token = request.headers['Authorization'].split(' ').pop()
-    # claims = google.oauth2.id_token.verify_firebase_token(
-    #     id_token, HTTP_REQUEST)
-    # if not claims:
-    #     return 'Unauthorized', 401
-    
-    # print(claims['user_id'])
-    
-    # return "Auth Succeed"
-    h = request.headers['Authorization']
-    print(get_user_id(h))
-    return 's'
 
 
 def get_user_id(header):
