@@ -150,12 +150,12 @@ def save_vocabulary():
     f = request.get_data()
     form_data = json.loads(f.decode('utf-8'))
     text = form_data['text']
-    device_id = form_data['device_id']
+    device_id = form_data['deviceId']
 
     db = firebase.database()
     users = db.child("users").get()
     for user in users.each():
-        if user.val()['device_id'] == device_id:
+        if user.val()['deviceId'] == device_id:
             uuid = user.key()
 
     if uuid == None:
