@@ -37,11 +37,7 @@ def show_words():
         return 'Signature has expired', 401
     except Exception:
         return 'Unauthorized?', 401
-        
-    uuid = get_user_id(h)
 
-    if uuid == None:
-        return 'Unauthorized', 401
 
     with open('responses/words.json', mode='r', buffering=-1, encoding='utf-8') as f:
         res = json.loads(f.read())
@@ -68,10 +64,6 @@ def get_word_num_list():
     except Exception:
         return 'Unauthorized?', 401
 
-    uuid = get_user_id(h)
-    
-    if uuid == None:
-        return 'Unauthorized', 401
 
     with open('responses/word_num_list.json', mode='r', buffering=-1, encoding='utf-8') as f:
         res = json.loads(f.read())
@@ -104,10 +96,6 @@ def delete_word():
     except Exception:
         return 'Unauthorized?', 401
 
-    uuid = get_user_id(h)
-    
-    if uuid == None:
-        return 'Unauthorized', 401
 
     f = request.get_data()
     form_data = json.loads(f.decode('utf-8'))
@@ -148,10 +136,6 @@ def save_vocabulary():
     except Exception:
         return 'Unauthorized?', 401
 
-    uuid = get_user_id(h)
-    
-    if uuid == None:
-        return 'Unauthorized', 401
 
     f = request.get_data()
     form_data = json.loads(f.decode('utf-8'))
