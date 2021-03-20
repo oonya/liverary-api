@@ -8,11 +8,13 @@ class Words(Base):
     vocabulary = Column(String(128))
     date = Column(String(128))
     uuid = Column(String(128))
+    num = Column(Integer)
 
-    def __init__(self, vocabulary=None, date=None, uuid=None):
+    def __init__(self, vocabulary=None, date=None, uuid=None, num=None):
         self.vocabulary = vocabulary
         self.date = date
         self.uuid = uuid
+        self.num = num
 
 
 
