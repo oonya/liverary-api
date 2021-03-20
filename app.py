@@ -14,6 +14,7 @@ import datetime
 import google.auth.transport.requests
 import google.oauth2.id_token
 
+from errors import Expired
 
 app = Flask(__name__)
 CORS(app, support_credentials=True)
@@ -31,6 +32,9 @@ def deltee_config():
 def show_words():
     try:
         h = request.headers['Authorization']
+        uuid = get_user_id(h)
+    except Expired:
+        return 'Signature has expired', 401
     except Exception:
         return 'Unauthorized?', 401
         
@@ -58,6 +62,9 @@ def show_words():
 def get_word_num_list():
     try:
         h = request.headers['Authorization']
+        uuid = get_user_id(h)
+    except Expired:
+        return 'Signature has expired', 401
     except Exception:
         return 'Unauthorized?', 401
 
@@ -91,6 +98,9 @@ def inc_res(dic_array, word):
 def delete_word():
     try:
         h = request.headers['Authorization']
+        uuid = get_user_id(h)
+    except Expired:
+        return 'Signature has expired', 401
     except Exception:
         return 'Unauthorized?', 401
 
@@ -132,6 +142,9 @@ def morphological_analysis(text):
 def save_vocabulary():
     try:
         h = request.headers['Authorization']
+        uuid = get_user_id(h)
+    except Expired:
+        return 'Signature has expired', 401
     except Exception:
         return 'Unauthorized?', 401
 
@@ -177,13 +190,12 @@ def kata_to_hira(strj):
 def show_db():
     try:
         h = request.headers['Authorization']
+        uuid = get_user_id(h)
+    except Expired:
+        return 'Signature has expired', 401
     except Exception:
         return 'Unauthorized?', 401
 
-    uuid = get_user_id(h)
-    
-    if uuid == None:
-        return 'Unauthorized', 401
 
     res = {"res" : []}
     
@@ -202,6 +214,11 @@ def get_user_id(header):
         id_token, HTTP_REQUEST)
     if not claims:
         return None
+    
+    now_unix_time = datetime.datetime.now().timestamp()
+    if claims['exp'] < now_unix_time:
+        print('Signature has expired')
+        raise Expired()
     
     return claims['user_id']
 
