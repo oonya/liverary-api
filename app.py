@@ -16,12 +16,27 @@ import google.auth.transport.requests
 import google.oauth2.id_token
 
 from errors import Expired
+import pyrebase
+
 
 app = Flask(__name__)
 CORS(app, support_credentials=True)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 app.config['JSON_AS_ASCII'] = False
+
+# 今は俺のアカウントのになってるので、takummaのに差し替える
+config = {
+    "apiKey": os.getenv('apiKey'),
+    "authDomain": os.getenv('authDomain'),
+    "databaseURL": os.getenv('databaseURL'),
+    "projectId": os.getenv('projectId'),
+    "storageBucket": os.getenv('storageBucket'),
+    "messagingSenderId": os.getenv('messagingSenderId'),
+    "appId": os.getenv('appId'),
+    "measurementId": os.getenv('measurementId')
+}
+firebase = pyrebase.initialize_app(config)
 
 
 @app.route('/')
@@ -132,18 +147,19 @@ def morphological_analysis(text):
 
 @app.route('/save-vocabulary', methods=['POST'])
 def save_vocabulary():
-    try:
-        h = request.headers['Authorization']
-        uuid = get_user_id(h)
-    except Expired:
-        return 'Signature has expired', 401
-    except Exception:
-        return 'Unauthorized?', 401
-
-
     f = request.get_data()
     form_data = json.loads(f.decode('utf-8'))
     text = form_data['text']
+    device_id = form_data['device_id']
+
+    db = firebase.database()
+    users = db.child("users").get()
+    for user in users.each():
+        if user.val()['device_id'] == device_id:
+            uuid = user.key()
+
+    if uuid == None:
+        return 'cannot find linked uuid', 401
 
     m = MeCab.Tagger('')
     node = m.parseToNode(text)
