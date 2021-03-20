@@ -8,6 +8,7 @@ import MeCab
 
 from models.models import Words
 from models.database import db_session
+from sqlalchemy import desc
 import datetime
 
 
@@ -173,6 +174,27 @@ def kata_to_hira(strj):
     return "".join([chr(ord(ch) - 96) if ("ァ" <= ch <= "ヴ") else ch for ch in strj])
 
 
+@app.route('/ranking')
+def ranking():
+    try:
+        h = request.headers['Authorization']
+        uuid = get_user_id(h)
+    except Expired:
+        return 'Signature has expired', 401
+    except Exception:
+        return 'Unauthorized?', 401
+    
+
+    with open('responses/ranking.json', mode='r', buffering=-1, encoding='utf-8') as f:
+        res = json.loads(f.read())
+    
+    users = db_session.query(Words).filter(Words.uuid == uuid).order_by(desc(Words.num)).limit(3).all()
+    for u in users:
+        res["ranking"].append({"word":u.vocabulary, "num":u.num})
+    
+    return jsonify(res)
+
+
 @app.route('/debug/show-db')
 def show_db():
     try:
@@ -209,6 +231,10 @@ def get_user_id(header):
     
     return claims['user_id']
 
+
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    db_session.remove()
 
 if __name__ == '__main__':
     app.run()
