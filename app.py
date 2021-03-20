@@ -48,7 +48,7 @@ def show_words():
     for w in words:
         dic_ary.append({"text":w.vocabulary, "date":w.date})
 
-    res["words"] = sorted(dic_ary, key=lambda x:x['date'])
+    res["words"] = sorted(dic_ary, key=lambda x:x['date'], reverse=True)
 
     return jsonify(res)
 
@@ -69,9 +69,12 @@ def get_word_num_list():
         res = json.loads(f.read())
 
     a = db_session.query(Words).filter(Words.uuid==uuid).all()
+
+    dic_ary = []
     for m in a:
-        res["word_num_list"] = inc_res(res["word_num_list"], m)
-        
+        dic_ary = inc_res(dic_ary, m)
+    
+    res['word_num_list'] = sorted(dic_ary, key=lambda x:x['month'], reverse=True)
 
     return jsonify(res)
 
