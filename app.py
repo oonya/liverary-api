@@ -75,7 +75,7 @@ def get_word_num_list():
     for m in a:
         dic_ary = inc_res(dic_ary, m)
     
-    res['word_num_list'] = sorted(dic_ary, key=lambda x:x['month'], reverse=True)
+    res['word_num_list'] = sorted(dic_ary, key=lambda x:x['month'])
 
     return jsonify(res)
 
