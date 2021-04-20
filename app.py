@@ -57,20 +57,6 @@ def delete_word():
     return Api.delete_word(uuid)
 
 
-@app.route('/get-morphological/<string:text>')
-def morphological_analysis(text):
-    res = ""
-    m = MeCab.Tagger('')
-    node = m.parseToNode(text)
-    while node:
-        print(node.surface, node.feature, '\n')
-
-        res += node.surface + "  " + node.feature.split(',')[0] + "____"
-        node = node.next
-
-    return jsonify({"res":res})
-
-
 @app.route('/save-vocabulary', methods=['POST'])
 def save_vocabulary():
     try:
@@ -95,27 +81,6 @@ def ranking():
         return 'Unauthorized?', 401
 
     return Api.ranking(uuid)
-
-
-@app.route('/debug/show-db')
-def show_db():
-    try:
-        h = request.headers['Authorization']
-        uuid = Api.get_user_id(h)
-    except Expired:
-        return 'Signature has expired', 401
-    except Exception:
-        return 'Unauthorized?', 401
-
-
-    res = {"res" : []}
-    
-    a = db_session.query(Words).filter(Words.uuid==uuid).all()
-    for m in a:
-        res["res"].append({"uuid":m.uuid, "voca":m.vocabulary, "date":m.date})
-        print("uuid:{}\nvoca:{}\ndate:{}\n".format(m.uuid, m.vocabulary, m.date))
-    
-    return jsonify(res)
 
 
 @app.teardown_appcontext
