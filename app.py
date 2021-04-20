@@ -17,6 +17,8 @@ import google.oauth2.id_token
 
 from errors import Expired
 
+from api import Api
+
 app = Flask(__name__)
 CORS(app, support_credentials=True)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -40,18 +42,7 @@ def show_words():
         return 'Unauthorized?', 401
 
 
-    with open('responses/words.json', mode='r', buffering=-1, encoding='utf-8') as f:
-        res = json.loads(f.read())
-    
-    words = db_session.query(Words).filter(Words.uuid==uuid).all()
-
-    dic_ary = []
-    for w in words:
-        dic_ary.append({"text":w.vocabulary, "date":w.date})
-
-    res["words"] = sorted(dic_ary, key=lambda x:x['date'], reverse=True)
-
-    return jsonify(res)
+    return Api.show_words(uuid)
 
 
 
