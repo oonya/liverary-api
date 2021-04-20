@@ -51,3 +51,18 @@ class Api():
         
         dic_array.append({"month":word.date[:7], "sum":1})
         return dic_array
+    
+
+    def delete_word(uuid):
+        f = request.get_data()
+        form_data = json.loads(f.decode('utf-8'))
+        word = form_data['word']
+
+        a = db_session.query(Words).filter(Words.uuid==uuid, Words.vocabulary==word).first()
+        if a == None:
+            raise Exception
+
+        db_session.delete(a)
+        db_session.commit()
+
+        return '', 204

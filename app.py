@@ -67,19 +67,7 @@ def delete_word():
     except Exception:
         return 'Unauthorized?', 401
 
-
-    f = request.get_data()
-    form_data = json.loads(f.decode('utf-8'))
-    word = form_data['word']
-
-    a = db_session.query(Words).filter(Words.uuid==uuid, Words.vocabulary==word).first()
-    if a == None:
-        raise Exception
-
-    db_session.delete(a)
-    db_session.commit()
-
-    return '', 204
+    return Api.delete_word(uuid)
 
 
 @app.route('/get-morphological/<string:text>')
