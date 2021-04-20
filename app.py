@@ -76,7 +76,6 @@ def morphological_analysis(text):
     m = MeCab.Tagger('')
     node = m.parseToNode(text)
     while node:
-        # print(node.surface, node.feature.split(',')[0], '\n')
         print(node.surface, node.feature, '\n')
 
         res += node.surface + "  " + node.feature.split(',')[0] + "____"
@@ -95,38 +94,7 @@ def save_vocabulary():
     except Exception:
         return 'Unauthorized?', 401
 
-
-    f = request.get_data()
-    form_data = json.loads(f.decode('utf-8'))
-    text = form_data['text']
-
-    m = MeCab.Tagger('')
-    node = m.parseToNode(text)
-
-    now = datetime.datetime.now()
-    date = now.strftime('%Y-%m-%d')
-    
-    while node:
-        part = node.feature.split(',')[0]
-        if part != 'BOS/EOS' and part != '記号' and part != '助詞' and part != '助動詞' and part != '補助記号':
-            word = kata_to_hira(node.feature.split(',')[6])
-
-            a = db_session.query(Words).filter(Words.uuid==uuid, Words.vocabulary==word).first()
-            if a:
-                a.num += 1
-                db_session.commit()
-            else:
-                w = Words(uuid=uuid, vocabulary=word, date=date, num=1)
-                db_session.add(w)
-                db_session.commit()
-
-        node = node.next
-
-
-    return 'succeed', 204
-
-def kata_to_hira(strj):
-    return "".join([chr(ord(ch) - 96) if ("ァ" <= ch <= "ヴ") else ch for ch in strj])
+    return Api.save_vocabulary(uuid)
 
 
 @app.route('/ranking')
