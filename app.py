@@ -1,23 +1,10 @@
 from flask import Flask, request, jsonify, json
-import os
-import json
 
 from flask_cors import CORS, cross_origin
 
-import MeCab
-
-from models.models import Words
 from models.database import db_session
-from sqlalchemy import desc
-import datetime
-
-
-import google.auth.transport.requests
-import google.oauth2.id_token
-
-from errors import Expired
-
 from api import Api
+
 
 app = Flask(__name__)
 CORS(app, support_credentials=True)
@@ -35,7 +22,7 @@ def deltee_config():
 def show_words():
     try:
         h = request.headers['Authorization']
-        uuid = get_user_id(h)
+        uuid = Api.get_user_id(h)
     except Expired:
         return 'Signature has expired', 401
     except Exception:
@@ -48,7 +35,7 @@ def show_words():
 def get_word_num_list():
     try:
         h = request.headers['Authorization']
-        uuid = get_user_id(h)
+        uuid = Api.get_user_id(h)
     except Expired:
         return 'Signature has expired', 401
     except Exception:
@@ -61,7 +48,7 @@ def get_word_num_list():
 def delete_word():
     try:
         h = request.headers['Authorization']
-        uuid = get_user_id(h)
+        uuid = Api.get_user_id(h)
     except Expired:
         return 'Signature has expired', 401
     except Exception:
@@ -88,7 +75,7 @@ def morphological_analysis(text):
 def save_vocabulary():
     try:
         h = request.headers['Authorization']
-        uuid = get_user_id(h)
+        uuid = Api.get_user_id(h)
     except Expired:
         return 'Signature has expired', 401
     except Exception:
@@ -101,7 +88,7 @@ def save_vocabulary():
 def ranking():
     try:
         h = request.headers['Authorization']
-        uuid = get_user_id(h)
+        uuid = Api.get_user_id(h)
     except Expired:
         return 'Signature has expired', 401
     except Exception:
@@ -114,7 +101,7 @@ def ranking():
 def show_db():
     try:
         h = request.headers['Authorization']
-        uuid = get_user_id(h)
+        uuid = Api.get_user_id(h)
     except Expired:
         return 'Signature has expired', 401
     except Exception:
@@ -129,22 +116,6 @@ def show_db():
         print("uuid:{}\nvoca:{}\ndate:{}\n".format(m.uuid, m.vocabulary, m.date))
     
     return jsonify(res)
-
-
-def get_user_id(header):
-    HTTP_REQUEST = google.auth.transport.requests.Request()
-    id_token = header.split(' ').pop()
-    claims = google.oauth2.id_token.verify_firebase_token(
-        id_token, HTTP_REQUEST)
-    if not claims:
-        return None
-    
-    now_unix_time = datetime.datetime.now().timestamp()
-    if claims['exp'] < now_unix_time:
-        print('Signature has expired')
-        raise Expired()
-    
-    return claims['user_id']
 
 
 @app.teardown_appcontext

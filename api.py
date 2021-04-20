@@ -8,10 +8,30 @@ import datetime
 
 import MeCab
 
+import google.auth.transport.requests
+import google.oauth2.id_token
+
+from errors import Expired
+
 
 class Api():
     def __init__(self):
         pass
+
+    def get_user_id(header):
+        HTTP_REQUEST = google.auth.transport.requests.Request()
+        id_token = header.split(' ').pop()
+        claims = google.oauth2.id_token.verify_firebase_token(
+            id_token, HTTP_REQUEST)
+        if not claims:
+            return None
+        
+        now_unix_time = datetime.datetime.now().timestamp()
+        if claims['exp'] < now_unix_time:
+            print('Signature has expired')
+            raise Expired()
+        
+        return claims['user_id']
 
 
     def show_words(uuid):
