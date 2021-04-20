@@ -99,3 +99,14 @@ class Api():
 
     def kata_to_hira(strj):
         return "".join([chr(ord(ch) - 96) if ("ァ" <= ch <= "ヴ") else ch for ch in strj])
+    
+    
+    def ranking(uuid):
+        with open('responses/ranking.json', mode='r', buffering=-1, encoding='utf-8') as f:
+            res = json.loads(f.read())
+        
+        users = db_session.query(Words).filter(Words.uuid == uuid).order_by(desc(Words.num)).limit(3).all()
+        for u in users:
+            res["ranking"].append({"word":u.vocabulary, "num":u.num})
+        
+        return jsonify(res)

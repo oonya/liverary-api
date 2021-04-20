@@ -106,16 +106,8 @@ def ranking():
         return 'Signature has expired', 401
     except Exception:
         return 'Unauthorized?', 401
-    
 
-    with open('responses/ranking.json', mode='r', buffering=-1, encoding='utf-8') as f:
-        res = json.loads(f.read())
-    
-    users = db_session.query(Words).filter(Words.uuid == uuid).order_by(desc(Words.num)).limit(3).all()
-    for u in users:
-        res["ranking"].append({"word":u.vocabulary, "num":u.num})
-    
-    return jsonify(res)
+    return Api.ranking(uuid)
 
 
 @app.route('/debug/show-db')
